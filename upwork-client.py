@@ -1,12 +1,13 @@
 import json
 import upwork
 import csv
+import os
 
 
 class UpworkClient(object):
     def __init__(self):
-        self.public_key = ""
-        self.secret_key = ""
+        self.public_key = os.environ['UPWORK_PUBLIC_KEY']
+        self.secret_key = os.environ['UPWORK_SECRET_KEY']
         self.client = upwork.Client(self.public_key, self.secret_key)
 
     def write_usernames_to_csv(self, room):
