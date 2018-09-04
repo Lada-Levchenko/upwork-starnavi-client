@@ -9,15 +9,14 @@ class UpworkClient(object):
         self.public_key = os.environ['UPWORK_PUBLIC_KEY']
         self.secret_key = os.environ['UPWORK_SECRET_KEY']
         self.client = upwork.Client(self.public_key, self.secret_key)
+        self.csvfile = open('names.csv')
+        output = csv.StringIO()
+        self.writer = csv.writer(output)
 
     def write_usernames_to_csv(self, room):
-        output = csv.StringIO()
-        writer = csv.writer(output)
         for userId in room.users:
             user = self.client.hr.get_user(userId)
-            writer.writerow(user.username)
-        output.seek(0)
-        return output.readlines()
+            self.writer.writerow(user.username)
 
     def run(self):
         print("Please to this URL (authorize the app if necessary):")
@@ -33,9 +32,11 @@ class UpworkClient(object):
         self.client.oauth_access_token_secret = oauth_access_token_secret
 
         response = json.loads(self.client.messages.get_rooms('StarNavi'))
-        room = json.loads(self.client.messages.get_room_details('StarNavi', response.rooms[0].roomId))
-        print(room)
-        self.write_usernames_to_csv(room)
+        for room in response.rooms:
+            room = json.loads(self.client.messages.get_room_details('StarNavi', room.roomId))
+            print(room)
+            self.write_usernames_to_csv(room)
+        self.csvfile.close()
 
 
 if __name__ == "__main__":
